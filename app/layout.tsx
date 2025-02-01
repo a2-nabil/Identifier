@@ -1,22 +1,14 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata: Metadata = {
-    title: 'Object Identifier',
-    description: 'Upload an image to identify objects using Google Gemini AI',
+export const metadata = {
+  title: 'Object Identifier',
+  description: 'Upload an image to identify objects using AI',
 }
 
-export default function RootLayout({
-    children,
-}: {
-    children: React.ReactNode
-}) {
-    return (
-        <html lang="en">
-            <body className={inter.className}>{children}</body>
-        </html>
-    )
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body className="min-h-screen bg-gray-50">{children}</body>
+    </html>
+  )
 }

@@ -1,126 +1,137 @@
 'use client'
 import { useState } from 'react'
-import { GoogleGenerativeAI } from '@google/generative-ai'
-import Image from 'next/image'
+import { Upload, Loader } from 'lucide-react'
+import ResultDisplay from '../components/ResultDisplay'
 
 export default function Home() {
-  const [selectedImage, setSelectedImage] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string>('')
-  const [result, setResult] = useState<string>('')
+  const [image, setImage] = useState(null)
+  const [preview, setPreview] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [result, setResult] = useState(null)
+  const [error, setError] = useState(null)
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0]
     if (file) {
-      setSelectedImage(file)
+      setImage(file)
       setPreview(URL.createObjectURL(file))
-      setResult('')
-      setError('')
+      identifyObject(file)
     }
   }
 
-  const identifyObject = async () => {
-    if (!selectedImage) return
-
-    setLoading(true)
-    setError('')
-
+  const identifyObject = async (file) => {
     try {
-      // Initialize Google Gemini AI
-      const genAI = new GoogleGenerativeAI('YOUR_API_KEY') // Replace with your API key
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' })
+      setLoading(true)
+      setError(null)
+      
+      // Validate file size (4MB limit)
+      if (file.size > 4 * 1024 * 1024) {
+        throw new Error('Image size must be less than 4MB')
+      }
 
-      // Convert image to base64
-      const buffer = await selectedImage.arrayBuffer()
-      const base64 = Buffer.from(buffer).toString('base64')
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+      if (!validTypes.includes(file.type)) {
+        throw new Error('Please upload a valid image file (JPEG, PNG, or WebP)')
+      }
 
-      // Create prompt
-      const prompt = "Identify the object in this image and provide important information about it. Include: 1. Object name 2. Brief description 3. Common uses 4. Any interesting facts"
-
-      // Generate content
-      const result = await model.generateContent([
-        prompt,
-        {
-          inlineData: {
-            data: base64,
-            mimeType: selectedImage.type
-          }
-        }
-      ])
-
-      const response = await result.response
-      setResult(response.text())
+      const formData = new FormData()
+      formData.append('image', file)
+      
+      const response = await fetch('/api/identify', {
+        method: 'POST',
+        body: formData,
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to identify object')
+      }
+      
+      const data = await response.json()
+      if (data.error) {
+        throw new Error(data.error)
+      }
+      
+      setResult(data)
+      
     } catch (err) {
-      setError('Error identifying object. Please try again.')
-      console.error(err)
+      console.error('Error details:', err)
+      setError(err.message)
+      setResult(null)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-8">Object Identifier</h1>
-        
-        <div className="bg-gray-800 rounded-lg p-8 shadow-xl">
-          <div className="mb-8">
-            <label className="block text-center w-full">
-              <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 hover:border-blue-500 transition-colors cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
+    <main className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Object Identifier</h1>
+        <p className="text-lg text-gray-600">Upload an image and let AI identify what's in it</p>
+      </div>
+
+      {/* Upload Section */}
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg text-center">
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleImageUpload}
+            className="hidden"
+            id="image-upload"
+          />
+          <label
+            htmlFor="image-upload"
+            className="cursor-pointer flex flex-col items-center p-8"
+          >
+            {preview ? (
+              <div className="mb-4 relative">
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="max-h-64 rounded-lg"
                 />
-                <div className="text-gray-400">
-                  {preview ? (
-                    <div className="relative w-full h-64">
-                      <Image
-                        src={preview}
-                        alt="Preview"
-                        fill
-                        className="object-contain rounded-lg"
-                      />
-                    </div>
-                  ) : (
-                    <div className="text-center">
-                      <p className="text-lg mb-2">Drop your image here</p>
-                      <p className="text-sm">or click to browse</p>
-                    </div>
-                  )}
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-lg">
+                  <span className="text-white text-sm">Click to change image</span>
                 </div>
               </div>
-            </label>
-          </div>
-
-          <button
-            onClick={identifyObject}
-            disabled={!selectedImage || loading}
-            className={`w-full py-3 rounded-lg font-semibold ${
-              !selectedImage || loading
-                ? 'bg-gray-600 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700'
-            } transition-colors`}
-          >
-            {loading ? 'Identifying...' : 'Identify Object'}
-          </button>
-
-          {error && (
-            <div className="mt-4 p-4 bg-red-900/50 rounded-lg text-red-200">
-              {error}
-            </div>
-          )}
-
-          {result && (
-            <div className="mt-8 p-6 bg-gray-700/50 rounded-lg">
-              <h2 className="text-2xl font-semibold mb-4">Results</h2>
-              <div className="whitespace-pre-wrap">{result}</div>
-            </div>
-          )}
+            ) : (
+              <div className="mb-4 text-center flex items-center justify-center flex-col">
+                <Upload className="w-12 h-12 text-gray-400" />
+                <p className="mt-2 text-sm text-gray-500">Click to upload an image</p>
+                <p className="text-xs text-gray-400 mt-1">JPEG, PNG, WebP up to 4MB</p>
+              </div>
+            )}
+            {!preview && (
+              <span className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
+                Choose Image
+              </span>
+            )}
+          </label>
         </div>
       </div>
+
+      {/* Loading State */}
+      {loading && (
+        <div className="text-center py-8">
+          <Loader className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-500" />
+          <p className="text-gray-600">Analyzing your image...</p>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg mb-8">
+          <p className="font-medium">Error</p>
+          <p className="text-sm">{error}</p>
+        </div>
+      )}
+
+      {/* Results */}
+      {result && !loading && (
+        <ResultDisplay result={result} />
+      )}
     </main>
   )
 }
