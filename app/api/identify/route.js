@@ -57,7 +57,7 @@ export async function POST(request) {
       Name of the main object/subject,
       Brief description at least (1-2 sentences),
       Three key characteristics or attributes, 
-      dont need point give the text`;
+      do not repeat the name of the object in the attributes or any irrealvant information.`;
 
     // Generate content using the new format
     const result = await model.generateContent([
