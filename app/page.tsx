@@ -4,10 +4,16 @@ import { Upload, Loader } from 'lucide-react'
 import ResultDisplay from '../components/ResultDisplay'
 import Image from 'next/image'
 
+type ResultType = {
+  name: string
+  description: string
+  attributes: string
+}
+
 export default function Home() {
-  const [preview, setPreview] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<string | null>(null)
+  const [preview, setPreview] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
+  const [result, setResult] = useState<ResultType | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,7 +28,7 @@ export default function Home() {
     try {
       setLoading(true)
       setError(null)
-      
+
       // Validate file size (4MB limit)
       if (file.size > 4 * 1024 * 1024) {
         throw new Error('Image size must be less than 4MB')
@@ -36,24 +42,25 @@ export default function Home() {
 
       const formData = new FormData()
       formData.append('image', file)
-      
+
       const response = await fetch('/api/identify', {
         method: 'POST',
         body: formData,
       })
-      
+
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(errorData.error || 'Failed to identify object')
       }
-      
+
       const data = await response.json()
-      if (data.error) {
-        throw new Error(data.error)
+
+      // Ensure data structure is correct
+      if (!data.name || !data.description || !data.attributes) {
+        throw new Error('Invalid response format from API')
       }
-      
-      setResult(data)
-      
+
+      setResult(data) // Set result with the expected structure
     } catch (err) {
       console.error('Error details:', err)
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
