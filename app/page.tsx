@@ -69,7 +69,7 @@ export default function Home() {
     <main className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Object Identifier</h1>
-        <p className="text-lg text-gray-600">Upload an image and let AI identify what's in it</p>
+        <p className="text-lg text-gray-600">Upload an image and let AI identify what&aposs in it</p>
       </div>
 
       {/* Upload Section */}
