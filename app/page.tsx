@@ -4,7 +4,7 @@ import { Upload, Loader } from 'lucide-react'
 import ResultDisplay from '../components/ResultDisplay'
 
 export default function Home() {
-  const [image, setImage] = useState('')
+  // const [image, setImage] = useState('')
   const [preview, setPreview] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState('')
@@ -13,7 +13,7 @@ export default function Home() {
   const handleImageUpload = (e) => {
     const file = e.target.files[0]
     if (file) {
-      setImage(file)
+      // setImage(file)
       setPreview(URL.createObjectURL(file))
       identifyObject(file)
     }
