@@ -5,22 +5,20 @@ import ResultDisplay from '../components/ResultDisplay'
 import Image from 'next/image'
 
 export default function Home() {
-  // const [image, setImage] = useState('')
   const [preview, setPreview] = useState('')
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState('')
-  const [error, setError] = useState('')
+  const [result, setResult] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0]
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
     if (file) {
-      // setImage(file)
       setPreview(URL.createObjectURL(file))
       identifyObject(file)
     }
   }
 
-  const identifyObject = async (file) => {
+  const identifyObject = async (file: File) => {
     try {
       setLoading(true)
       setError(null)
@@ -58,7 +56,7 @@ export default function Home() {
       
     } catch (err) {
       console.error('Error details:', err)
-      setError(err.message)
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
       setResult(null)
     } finally {
       setLoading(false)
@@ -69,7 +67,7 @@ export default function Home() {
     <main className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Object Identifier</h1>
-        <p className="text-lg text-gray-600">Upload an image and let AI identify what&aposs in it</p>
+        <p className="text-lg text-gray-600">Upload an image and let AI identify what's in it</p>
       </div>
 
       {/* Upload Section */}
@@ -92,6 +90,8 @@ export default function Home() {
                   src={preview}
                   alt="Preview"
                   className="max-h-64 rounded-lg"
+                  width={300}
+                  height={300}
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-lg">
                   <span className="text-white text-sm">Click to change image</span>
@@ -130,9 +130,7 @@ export default function Home() {
       )}
 
       {/* Results */}
-      {result && !loading && (
-        <ResultDisplay result={result} />
-      )}
+      {result && !loading && <ResultDisplay result={result} />}
     </main>
   )
 }
