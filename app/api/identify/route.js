@@ -9,7 +9,6 @@ function formatResponse(text) {
     return JSON.parse(text);
   } catch (e) {
     // Extract information if JSON parsing fails
-    const env = e;
     const name = text.split("\n")[0] || "Unknown Object";
     const description = text.split("\n")[1] || text.substring(0, 200);
     const attributes = text
