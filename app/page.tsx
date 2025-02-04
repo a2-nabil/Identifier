@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { Upload, Loader } from 'lucide-react'
 import ResultDisplay from '../components/ResultDisplay'
+import Image from 'next/image'
 
 export default function Home() {
   // const [image, setImage] = useState('')
@@ -87,7 +88,7 @@ export default function Home() {
           >
             {preview ? (
               <div className="mb-4 relative">
-                <img
+                <Image
                   src={preview}
                   alt="Preview"
                   className="max-h-64 rounded-lg"
