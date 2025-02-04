@@ -7,7 +7,7 @@ const genAI = new GoogleGenerativeAI("AIzaSyCuvmXvjJny7xhRcG4Br2_sItGGG9PRGyE");
 function formatResponse(text) {
   try {
     return JSON.parse(text);
-  } catch (e) {
+  } catch () {
     // Extract information if JSON parsing fails
     const name = text.split("\n")[0] || "Unknown Object";
     const description = text.split("\n")[1] || text.substring(0, 200);
