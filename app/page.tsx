@@ -7,7 +7,7 @@ import Image from 'next/image'
 type ResultType = {
   name: string
   description: string
-  attributes: string
+  attributes: string[]
 }
 
 export default function Home() {
