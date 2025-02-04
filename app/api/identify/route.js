@@ -4,26 +4,26 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI("AIzaSyCuvmXvjJny7xhRcG4Br2_sItGGG9PRGyE");
 
 // Helper function to format response
-function formatResponse(text) {
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    // Extract information if JSON parsing fails
-    const name = text.split("\n")[0] || "Unknown Object";
-    const description = text.split("\n")[1] || text.substring(0, 200);
-    const attributes = text
-      .split("\n")
-      .slice(2)
-      .map((attr) => attr.trim())
-      .filter(Boolean);
+// function formatResponse(text) {
+//   try {
+//     return JSON.parse(text);
+//   } catch (e) {
+//     // Extract information if JSON parsing fails
+//     const name = text.split("\n")[0] || "Unknown Object";
+//     const description = text.split("\n")[1] || text.substring(0, 200);
+//     const attributes = text
+//       .split("\n")
+//       .slice(2)
+//       .map((attr) => attr.trim())
+//       .filter(Boolean);
 
-    return {
-      name,
-      description,
-      attributes,
-    };
-  }
-}
+//     return {
+//       name,
+//       description,
+//       attributes,
+//     };
+//   }
+// }
 
 export async function POST(request) {
   try {
