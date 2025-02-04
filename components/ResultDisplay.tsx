@@ -1,7 +1,7 @@
 export default function ResultDisplay({
   result,
 }: {
-  result: { name: string; description: string; attributes: string[] } | null;
+  result: { name: string; description: string; attributes: string[] } | '';
 }) {
   if (!result) return null;
 
