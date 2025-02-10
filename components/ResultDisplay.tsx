@@ -4,11 +4,16 @@ export default function ResultDisplay({
   result: { name: string; description: string; attributes: string[] } | '';
 }) {
   if (!result) return null;
+  
 
   // Function to convert Markdown-like syntax (e.g., **bold**) into HTML
   const formatBoldText = (text: string) => {
     return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
   };
+  const formatDescText = (text: string) => {
+    return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+  };
+  
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 animate-fade-in">
@@ -17,7 +22,7 @@ export default function ResultDisplay({
       {/* Object Name */}
       <div className="mb-6">
         <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">
-          Identified Object
+          Identified Name
         </h3>
         <p
           className="text-xl font-medium text-gray-900"
@@ -32,7 +37,7 @@ export default function ResultDisplay({
         </h3>
         <p
           className="text-gray-700 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: formatBoldText(result.description) }}
+          dangerouslySetInnerHTML={{ __html: formatDescText(result.description) }}
         />
       </div>
 

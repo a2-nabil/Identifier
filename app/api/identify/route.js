@@ -6,22 +6,23 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 // Helper function to format response
 function formatResponse(text) {
   try {
+    console.log(text);
     return JSON.parse(text);
   } catch {
     // Extract information if JSON parsing fails
     const name = text.split("\n")[0] || "Unknown Object";
-    const description = text.split("\n")[1] || text.substring(0, 200);
+    const description = text.split("\n\n").slice(0, 2).join("\n") || "No description provided";
     
     // Clean up and ensure attributes is always an array
     const rawAttributes = text
-      .split("\n")
+      .split("\n\n")
       .slice(2)
       .map((attr) => attr.trim())
       .filter(Boolean);
 
     // Remove any lines that start with a bullet point or unnecessary characters
     const attributes = rawAttributes
-      .map(attr => attr.replace(/^\*\s?|\*\*|\s*[-*•]\s*/g, '').trim()) // Remove bullets and extra characters
+      .map(attr => attr)
       .filter(Boolean);
 
     return {
@@ -53,11 +54,11 @@ export async function POST(request) {
     // Initialize the model (using the correct model name)
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-    const prompt = `Analyze this image and provide:
-      Name of the main object/subject,
-      Brief description at least (1-2 sentences),
-      Three key characteristics or attributes, 
-      do not repeat the name of the object in the attributes or any irrealvant information.`;
+    const prompt = `Please analyze the image and provide the following: 
+Identify the subject of the image (e.g., if it's a person, provide their name; if it's an object, provide its name).
+Provide a brief but detailed description of what the image depicts. Include important visual details such as colors, shapes, context, or surroundings.
+in attributes only provide List notable attributes related to the image. This could include physical characteristics (for a person: height, hair color, clothing; for an object: size, material, usage) or other relevant traits depending on the context of the image. 
+    (remember do not add or mention  Name, Description, Attributes on the response)`;
 
     // Generate content using the new format
     const result = await model.generateContent([
@@ -75,6 +76,7 @@ export async function POST(request) {
     const text = response.text();
 
     // Log the response to check its structure
+    console.log("a2n Response:", text);
     console.log("API Response:", result);
 
     // Format and return the response
