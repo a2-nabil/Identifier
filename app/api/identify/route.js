@@ -52,7 +52,7 @@ export async function POST(request) {
     const imageData = await image.arrayBuffer();
 
     // Initialize the model (using the correct model name)
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
 
     const prompt = `Please analyze the image and provide the following: 
 Identify the subject of the image (e.g., if it's a person, provide their name; if it's an object, provide its name).
